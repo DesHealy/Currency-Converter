@@ -1,49 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        body { font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .box { background: #1e1e1e; padding: 20px; border-radius: 20px; width: 90%; max-width: 300px; text-align: center; border: 1px solid #333; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-        input { width: 100%; background: #2c2c2c; border: 2px solid #444; border-radius: 12px; color: #00ff88; font-size: 2.2rem; padding: 12px; margin: 8px 0; box-sizing: border-box; text-align: center; outline: none; }
-        input:focus { border-color: #00ff88; }
-        label { font-size: 0.9rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        body { font-family: sans-serif; background: #121212; color: white; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+        .box { background: #1e1e1e; padding: 15px; border-radius: 20px; width: 95%; text-align: center; border: 1px solid #333; }
+        .val { font-size: 2.5rem; color: #00ff88; font-weight: bold; margin: 10px 0; }
+        .label { font-size: 0.8rem; color: #888; text-transform: uppercase; }
+        .controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        button { background: #333; border: none; color: white; padding: 10px; border-radius: 8px; font-size: 1rem; active: background: #00ff88; }
     </style>
 </head>
 <body>
     <div class="box">
-        <label>Czech Koruna (CZK)</label>
-        <input type="number" id="czk" placeholder="0" inputmode="decimal">
+        <div class="label">Czech Koruna (CZK)</div>
+        <div class="val" id="czkShow">100</div>
         
-        <label>Euro (EUR)</label>
-        <input type="number" id="eur" placeholder="0" inputmode="decimal">
+        <div class="controls">
+            <button onclick="change(1)">+1</button>
+            <button onclick="change(10)">+10</button>
+            <button onclick="change(100)">+100</button>
+            <button onclick="change(-1)">-1</button>
+            <button onclick="change(-10)">-10</button>
+            <button onclick="change(-100)">-100</button>
+        </div>
+
+        <div class="label">Euro (EUR)</div>
+        <div class="val" id="eurShow">3.95</div>
     </div>
 
     <script>
-        const RATE = 25.30;
-        const czkInput = document.getElementById('czk');
-        const eurInput = document.getElementById('eur');
-
-        function updateValues(e) {
-            const val = parseFloat(e.target.value);
-            if (isNaN(val)) {
-                if (e.target.id === 'czk') eurInput.value = '';
-                else czkInput.value = '';
-                return;
-            }
-
-            if (e.target.id === 'czk') {
-                eurInput.value = (val / RATE).toFixed(2);
-            } else {
-                czkInput.value = (val * RATE).toFixed(2);
-            }
+        let czk = 100;
+        const rate = 25.30;
+        function change(amt) {
+            czk = Math.max(0, czk + amt);
+            document.getElementById('czkShow').innerText = czk;
+            document.getElementById('eurShow').innerText = (czk / rate).toFixed(2);
         }
-
-        // We use both 'input' and 'keyup' to ensure Android Webviews catch it
-        czkInput.addEventListener('input', updateValues);
-        eurInput.addEventListener('input', updateValues);
-        czkInput.addEventListener('keyup', updateValues);
-        eurInput.addEventListener('keyup', updateValues);
     </script>
 </body>
 </html>
