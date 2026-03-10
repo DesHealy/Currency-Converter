@@ -1,56 +1,99 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EUR to CZK Converter</title>
     <style>
-        body { font-family: sans-serif; background: #000; color: white; margin: 0; padding: 10px; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .box { background: #1a1a1a; padding: 25px; border-radius: 35px; width: 95%; text-align: center; border: 2px solid #333; }
-        .val { font-size: 3.2rem; color: #00ff88; font-weight: 800; margin: 5px 0; font-variant-numeric: tabular-nums; }
-        .label { font-size: 0.9rem; color: #888; text-transform: uppercase; letter-spacing: 2px; }
-        
-        input[type=range] { 
-            width: 100%; 
-            height: 45px; 
-            background: #222; 
-            border-radius: 25px; 
-            outline: none; 
-            margin: 25px 0; 
-            -webkit-appearance: none; 
+        body {
+            font-family: -apple-system, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
         }
-        
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 55px;
-            height: 55px;
-            background: #00ff88;
-            border-radius: 50%;
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+        .czk-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        .eur-label {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            margin-bottom: 2rem;
+        }
+        input[type=range] {
+            width: 100%;
             cursor: pointer;
-            border: 4px solid #fff;
+            margin: 20px 0;
+        }
+        .rate-info {
+            font-size: 0.8rem;
+            color: #bdc3c7;
+            margin-top: 1rem;
         }
     </style>
 </head>
 <body>
-    <div class="box">
-        <div class="label">Czech Koruna (CZK)</div>
-        <div class="val" id="czkShow">1012.00</div>
 
-        <input type="range" id="eurSlider" min="0" max="250" value="40" step="1">
+<div class="card">
+    <div class="czk-display" id="czkValue">0.00 CZK</div>
+    <div class="eur-label" id="eurValue">0 EUR</div>
+    
+    <input type="range" id="slider" min="0" max="250" value="40" step="1">
+    
+    <div class="rate-info" id="rateDisplay">Fetching live rate...</div>
+</div>
 
-        <div class="label">Euro (EUR)</div>
-        <div class="val" id="eurShow">40</div>
-    </div>
+<script>
+    const slider = document.getElementById('slider');
+    const czkDisplay = document.getElementById('czkValue');
+    const eurDisplay = document.getElementById('eurValue');
+    const rateDisplay = document.getElementById('rateDisplay');
 
-    <script>
-        const rate = 25.30;
-        const slider = document.getElementById('eurSlider');
-        const eurShow = document.getElementById('eurShow');
-        const czkShow = document.getElementById('czkShow');
+    let currentRate = 25.30; // Fallback rate
 
-        slider.oninput = function() {
-            let eurVal = parseInt(this.value);
-            eurShow.innerText = eurVal; 
-            czkShow.innerText = (eurVal * rate).toFixed(2); 
-        };
-    </script>
+    // 1. Fetch live rate from API
+    async function updateRate() {
+        try {
+            const response = await fetch('https://open.er-api.com/v6/latest/EUR');
+            const data = await response.json();
+            currentRate = data.rates.CZK;
+            rateDisplay.innerText = `Live Rate: 1 EUR = ${currentRate.toFixed(2)} CZK`;
+            calculate();
+        } catch (error) {
+            rateDisplay.innerText = `Using Offline Rate: 1 EUR = ${currentRate} CZK`;
+            calculate();
+        }
+    }
+
+    // 2. Calculation logic
+    function calculate() {
+        const eur = slider.value;
+        const czk = (eur * currentRate).toFixed(2);
+        
+        eurDisplay.innerText = `${eur} EUR`;
+        czkDisplay.innerText = `${czk} CZK`;
+    }
+
+    // 3. Listen for slider movement
+    slider.oninput = calculate;
+
+    // Run on load
+    updateRate();
+</script>
+
 </body>
 </html>
