@@ -3,43 +3,41 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        body { font-family: sans-serif; background: #000; color: white; margin: 0; padding: 15px; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .box { background: #1a1a1a; padding: 20px; border-radius: 30px; width: 100%; text-align: center; border: 2px solid #333; }
-        .val { font-size: 3.5rem; color: #00ff88; font-weight: 800; margin: 5px 0; font-variant-numeric: tabular-nums; }
-        .label { font-size: 1rem; color: #aaa; text-transform: uppercase; letter-spacing: 2px; }
+        body { font-family: sans-serif; background: #000; color: white; margin: 0; padding: 10px; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .box { background: #1a1a1a; padding: 20px; border-radius: 30px; width: 95%; text-align: center; border: 1px solid #333; }
+        .val { font-size: 3rem; color: #00ff88; font-weight: 800; margin: 5px 0; font-variant-numeric: tabular-nums; }
+        .label { font-size: 0.8rem; color: #aaa; text-transform: uppercase; letter-spacing: 2px; }
         
-        /* The Slider Styling */
         input[type=range] { 
             width: 100%; 
-            height: 50px; /* Extra thick for easy touch */
+            height: 40px; 
             background: #333; 
-            border-radius: 25px; 
+            border-radius: 20px; 
             outline: none; 
-            margin: 30px 0; 
+            margin: 20px 0; 
             -webkit-appearance: none; 
         }
         
-        /* The Circle/Thumb you slide */
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             background: #00ff88;
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+            border: 3px solid #fff;
         }
     </style>
 </head>
 <body>
     <div class="box">
         <div class="label">CZK (Czech)</div>
-        <div class="val" id="czkShow">1000</div>
+        <div class="val" id="czkShow">100</div>
         
-        <input type="range" id="czkSlider" min="0" max="5000" value="1000" step="50">
+        <input type="range" id="czkSlider" min="0" max="1000" value="100" step="1">
 
         <div class="label">EUR (Euro)</div>
-        <div class="val" id="eurShow">39.53</div>
+        <div class="val" id="eurShow">3.95</div>
     </div>
 
     <script>
@@ -49,8 +47,9 @@
         const eurShow = document.getElementById('eurShow');
 
         slider.oninput = function() {
-            czkShow.innerText = this.value;
-            eurShow.innerText = (this.value / rate).toFixed(2);
+            let val = parseInt(this.value);
+            czkShow.innerText = val;
+            eurShow.innerText = (val / rate).toFixed(2);
         };
     </script>
 </body>
