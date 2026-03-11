@@ -1,107 +1,77 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EUR to CZK Live</title>
     <style>
-        body {
-            font-family: -apple-system, sans-serif;
-            background-color: #121212; /* Deep Dark */
-            color: #e0e0e0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .card {
-            background: #1e1e1e;
-            padding: 2.5rem;
-            border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            text-align: center;
-            width: 85%;
-            max-width: 380px;
-            border: 1px solid #333;
-        }
-        .czk-display {
-            font-size: 3.5rem;
-            font-weight: 800;
-            color: #4CAF50; /* High Contrast Green */
-            margin-bottom: 0.2rem;
-        }
-        .eur-label {
-            font-size: 1.5rem;
-            color: #b0b0b0;
-            margin-bottom: 2.5rem;
-        }
-        input[type=range] {
-            width: 100%;
+        body { font-family: sans-serif; display: flex; justify-content: center; padding: 20px; background: #1a1a1a; color: white; }
+        .card { background: #2a2a2a; padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        #czk { font-size: 3.5rem; font-weight: bold; margin: 10px 0; color: #4CAF50; }
+        #eur { font-size: 1.8rem; color: #aaa; margin-bottom: 30px; }
+        
+        /* The Bigger Slider Styling */
+        input[type=range] { 
+            width: 100%; 
+            height: 24px; /* Thicker Track */
+            border-radius: 12px; 
+            background: #444; 
+            outline: none; 
             -webkit-appearance: none;
-            background: #333;
-            height: 10px;
-            border-radius: 5px;
-            outline: none;
+            margin: 20px 0;
         }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 28px;
-            height: 28px;
-            background: #4CAF50;
-            border-radius: 50%;
+        
+        /* The Grabbable Circle (Chrome/Safari/Android) */
+        input[type=range]::-webkit-slider-thumb { 
+            -webkit-appearance: none; 
+            width: 40px; /* Big Thumb */
+            height: 40px; 
+            background: #4CAF50; 
+            border-radius: 50%; 
             cursor: pointer;
-            border: 3px solid #1e1e1e;
+            border: 4px solid #2a2a2a;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
-        .status {
-            font-size: 0.8rem;
-            color: #666;
-            margin-top: 1.5rem;
-            letter-spacing: 0.5px;
-        }
+
+        .rate-tag { font-size: 0.9rem; color: #666; margin-top: 25px; font-style: italic; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <div class="czk-display" id="czk">-- CZK</div>
-    <div class="eur-label" id="eur">0 EUR</div>
-    
-    <input type="range" id="slider" min="0" max="250" value="40">
-    
-    <div class="status" id="status">Syncing live rates...</div>
+    <div id="czk">0.00 CZK</div>
+    <div id="eur">0 EUR</div>
+    <input type="range" id="slider" min="0" max="150" value="40" step="1">
+    <div class="rate-tag" id="status">Fetching live rate...</div>
 </div>
 
 <script>
     const slider = document.getElementById('slider');
     const czkDisp = document.getElementById('czk');
     const eurDisp = document.getElementById('eur');
-    const statusDisp = document.getElementById('status');
+    const status = document.getElementById('status');
+    let rate = 24.39; 
 
-    let currentRate = 24.39; // Safety fallback
-
-    async function fetchRate() {
+    async function getLiveRate() {
         try {
             const res = await fetch('https://open.er-api.com/v6/latest/EUR');
             const data = await res.json();
-            currentRate = data.rates.CZK;
-            statusDisp.innerText = `LIVE: 1 EUR = ${currentRate.toFixed(2)} CZK`;
+            rate = data.rates.CZK;
+            status.innerText = `Live: 1 EUR = ${rate.toFixed(2)} CZK`;
             update();
         } catch (e) {
-            statusDisp.innerText = `OFFLINE (Using ${currentRate} CZK)`;
+            status.innerText = `Offline: Using ${rate} CZK`;
             update();
         }
     }
 
     function update() {
-        const eur = slider.value;
-        const czk = (eur * currentRate).toLocaleString('cs-CZ', { minimumFractionDigits: 2 });
-        eurDisp.innerText = `${eur} EUR`;
-        czkDisp.innerText = `${czk} CZK`;
+        const val = slider.value;
+        eurDisp.innerText = val + " EUR";
+        const total = (val * rate).toFixed(2);
+        czkDisp.innerText = total + " CZK";
     }
 
     slider.oninput = update;
-    fetchRate(); // Run on load
+    getLiveRate();
 </script>
 
 </body>
