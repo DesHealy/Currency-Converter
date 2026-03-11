@@ -3,10 +3,21 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        body { font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f0f2f5; }
-        .card { background: white; padding: 40px 30px; border-radius: 24px; width: 85%; max-width: 360px; height: 300px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        #czk { font-size: 3.2rem; font-weight: 800; color: #1a1a1a; margin: 0; min-height: 1.2em; }
-        #eur { font-size: 1.4rem; color: #666; margin-top: 10px; }
+        body { font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f0f2f5; overflow: hidden; }
+        .card { background: white; padding: 40px 20px; border-radius: 24px; width: 90%; max-width: 360px; height: 320px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        
+        /* Fixed the 2-line jump issue here */
+        #czk { 
+            font-size: 2.8rem; 
+            font-weight: 800; 
+            color: #1a1a1a; 
+            margin: 0; 
+            white-space: nowrap; /* Forces one line */
+            font-variant-numeric: tabular-nums; /* Prevents jitter */
+            overflow: hidden;
+        }
+        
+        #eur { font-size: 1.4rem; color: #666; margin-top: 8px; font-variant-numeric: tabular-nums; }
         input[type=range] { width: 100%; height: 6px; border-radius: 5px; background: #e0e0e0; outline: none; -webkit-appearance: none; margin: 40px 0 20px 0; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: #007AFF; border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
         .rate-tag { font-size: 0.8rem; color: #bbb; margin: 0; }
@@ -24,40 +35,38 @@
 </div>
 
 <script>
-    // This makes sure the script waits until the page is 100% ready
     window.onload = function() {
         const slider = document.getElementById('slider');
         const czkDisp = document.getElementById('czk');
         const eurDisp = document.getElementById('eur');
         const status = document.getElementById('status');
         
-        let rate = 25.30; // Reliable fallback
+        let rate = 25.30; 
 
         function calculate() {
             const val = parseInt(slider.value) || 0;
-            const result = (val * rate).toFixed(2);
+            const result = (val * rate).toLocaleString('cs-CZ', { 
+                minimumFractionDigits: 2, 
+                maximumFractionDigits: 2 
+            });
             eurDisp.textContent = val + " EUR";
             czkDisp.textContent = result + " CZK";
         }
 
-        // Run immediately with fallback
         calculate();
-
-        // Listen for movement
         slider.addEventListener('input', calculate);
 
-        // Fetch live rate
         fetch('https://open.er-api.com/v6/latest/EUR')
             .then(res => res.json())
             .then(data => {
-                if (data && data.rates && data.rates.CZK) {
+                if (data?.rates?.CZK) {
                     rate = data.rates.CZK;
                     status.textContent = "Live: 1 EUR = " + rate.toFixed(2) + " CZK";
-                    calculate(); // Update with live rate
+                    calculate();
                 }
             })
-            .catch(err => {
-                status.textContent = "Offline: Using 25.30 CZK";
+            .catch(() => {
+                status.textContent = "Using Offline Rate: " + rate;
                 calculate();
             });
     };
